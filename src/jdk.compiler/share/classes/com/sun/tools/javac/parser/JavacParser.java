@@ -934,7 +934,7 @@ public class JavacParser implements Parser {
      */
     JCExpression term1() {
         JCExpression t = term2();
-        if ((mode & EXPR) != 0 && token.kind == QUES) {
+        if ((mode & EXPR) != 0 && (token.kind == QUES || token.kind == IFF)) {
             selectExprMode();
             return term1Rest(t);
         } else {
@@ -952,6 +952,13 @@ public class JavacParser implements Parser {
             accept(COLON);
             JCExpression t2 = term1();
             return F.at(pos).Conditional(t, t1, t2);
+        } else if (token.kind == IFF) {
+            int pos = token.pos;
+            nextToken();
+            JCExpression t1 = term();
+            accept(ELSE);
+            JCExpression t2 = term1();
+            return F.at(pos).Conditional(t1, t, t2);
         } else {
             return t;
         }
